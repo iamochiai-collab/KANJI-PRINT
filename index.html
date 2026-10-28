@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>漢字テスト・ふくしゅうプリント</title>
 <meta name="description" content="小学1〜6年・中学校の常用漢字2136字。漢字テスト・練習プリント・かくにん表・漢字帳のお手本を、A4縦書きのPDFでつくれる無料アプリ。">
-<meta name="app-version" content="1.3.0">
+<meta name="app-version" content="1.3.1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
@@ -422,10 +422,14 @@ dialog.sheet::backdrop{background:rgba(15,25,40,.45);backdrop-filter:blur(2px)}
     <div class="paper" id="paper"><canvas id="preview" width="1188" height="840" role="img" aria-label="プリントのプレビュー"></canvas></div>
     <div class="dots" id="dots"></div>
     <p class="vnote">A4横・縦書き。左右にスワイプ（パソコンは ← → キー）でページをめくれます。</p>
-    <p class="vnote credit">バージョン <span id="appVer">1.3.0</span>（<a href="https://github.com/uramotokou-hash/kanji-print/blob/main/CHANGELOG.md" target="_blank" rel="noopener" style="color:inherit">更新のきろく</a>）</p>
+    <p class="vnote credit">教材編集：落合</p>
+    <details class="credit" style="margin:12px 2px;text-align:left">
+      <summary style="cursor:pointer">データの出典・ライセンス</summary>
     <p class="vnote credit">中学の学年区分：<a href="https://m-manabi.jp/07c/kokugo1/u32/index.html" target="_blank" rel="noopener" style="color:inherit">光村図書・中1</a>／<a href="https://m-manabi.jp/07c/kokugo2/u27/index.html" target="_blank" rel="noopener" style="color:inherit">中2</a>／<a href="https://m-manabi.jp/07c/kokugo3/u23/index.html" target="_blank" rel="noopener" style="color:inherit">中3</a>（令和7年度版）。</p>
     <p class="vnote credit">中学校の範囲・語例：<a href="https://www.bunka.go.jp/kokugo_nihongo/sisaku/joho/joho/kijun/naikaku/kanji/" target="_blank" rel="noopener" style="color:inherit">文化庁「常用漢字表」</a>。小学校の漢字を除いた1110字をまとめています。</p>
-    <p class="vnote credit">熟語のよみを1字ずつに分ける処理に、KANJIDIC（© Electronic Dictionary Research and Development Group, CC BY-SA 4.0）の読みデータを使用しています。</p>
+    <p class="vnote credit">熟語のよみを1字ずつに分ける処理に、KANJIDIC（© Electronic Dictionary Research and Development Group, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY-SA 4.0</a>）の読みデータを使用しています。</p>
+      <p class="vnote credit">読みデータは常用漢字分を抜粋し、教材向けの読み分けに利用しています。</p>
+    </details>
   </section>
 </main>
 
@@ -556,9 +560,7 @@ const STRIP_W = 22, STRIP_X = W - M - STRIP_W;
 const SIZES = {L:{s:24,gap:2}, M:{s:20,gap:1.6}, S:{s:16,gap:1.4}};
 const RED = "#c62828";
 
-const APP_VERSION = "1.3.0";
-let downloads = null;
-(async () => { try { if (window.claude && claude.use) downloads = await claude.use("downloads"); } catch(e){} })();
+const APP_VERSION = "1.3.1";
 const $ = id => document.getElementById(id);
 
 // ---------- 学期の分け方 ----------
@@ -1843,17 +1845,8 @@ $("make").onclick = async () => {
       lab.textContent = `つくっています ${i+1}/${total}`; fill.style.width = ((i+1)/total*100)+"%";
     });
     lab.textContent = "まとめています…";
-    const blob = pdf.output("blob");
-    if (downloads){
-      try { await downloads.save({filename: filename(), data: blob}); toast("PDFを保存しました"); }
-      catch(e){ toast(e && e.code==="declined" ? "保存を取りやめました" : "保存できませんでした。印刷ボタンからPDFに保存できます"); }
-    } else if (!window.claude){
-      // GitHub Pages など、ふつうのブラウザで開いたとき：そのまま保存
-      try { pdf.save(filename()); toast("PDFを保存しました"); }
-      catch(e){ toast("保存できませんでした。印刷ボタンから「PDFに保存」をえらんでください"); }
-    } else {
-      toast("この画面ではファイル保存が使えません。印刷ボタンから「PDFに保存」をえらんでください");
-    }
+    try { pdf.save(filename()); toast("PDFを保存しました"); }
+    catch(e){ toast("保存できませんでした。印刷ボタンから「PDFに保存」をえらんでください"); }
   } catch(e){ toast("PDFをつくれませんでした：" + (e.message||e)); }
   btn.disabled = false; lab.textContent = "PDFをつくる"; fill.style.width = "0";
 };
